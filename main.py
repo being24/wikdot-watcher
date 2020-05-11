@@ -52,7 +52,7 @@ def gen_webhook_msg(content):
 
 
 def send_webhook(main_content):
-    webhook_url = "https://discordapp.com/api/webhooks/694187376465149972/ES5b-_e0t2orM8Je_gKfybFjTLhjeyUXFe4Zs-cnJK2JHwZ_uJjg2-_7eRS6J6LI_2Y1"
+    webhook_url = "https://discordapp.com/api/webhooks/709479351204184174/xC8ORQ_s3ddNxVstCcO8-bm-8af5xpElps2euO440tCOiRAoMLqfiuwLw-MEipLfiq79"
     response = requests.post(webhook_url, main_content)
     if response.status_code != 204:
         print(response.text)
