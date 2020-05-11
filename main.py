@@ -66,7 +66,7 @@ def return_df_from_gs():
     SPREADSHEET_KEY = "1he4CNLJi6a2BsM7mptmeUe6gOuQCDNc7GJ5-hlZVLDs"
 
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        "rookie-contest-ecc5f6c1c767.json", scope)
+        current_path + "/rookie-contest-ecc5f6c1c767.json", scope)
 
     gc = gspread.authorize(credentials)
 
