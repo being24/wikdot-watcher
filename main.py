@@ -2,6 +2,7 @@
 # coding: utf-8
 
 
+import datetime
 import html
 import json
 import os
@@ -123,7 +124,7 @@ def return_list_of_not_in_gs(df):
         if any([entry.id == i for i in result_list]):
             not_in_gs_list.append([entry.title, entry.id])
 
-    print("記録されていないurlのリスト生成完了")
+    print("記録されていないurlのリスト更新完了")
 
     return not_in_gs_list
 
@@ -131,6 +132,8 @@ def return_list_of_not_in_gs(df):
 if __name__ == "__main__":
     current_path = os.path.dirname(__file__)
     json_name = current_path + "/notified.json"
+
+    print(datetime.datetime.now())
 
     def dump_json(json_data):
         with open(json_name, "w", encoding="utf-8") as f:
