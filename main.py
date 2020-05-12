@@ -2,6 +2,7 @@
 # coding: utf-8
 
 
+import configparser
 import datetime
 import html
 import json
@@ -46,13 +47,12 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
 def gen_webhook_msg(content):
     msg = {
         "username": "スプレッドシート監視",
-        "content": content
-    }
+        "avatar_url": "https://github.com/being24/rookie-contest-gswatcher/blob/master/logo.png?raw=true",
+        "content": content}
     return msg
 
 
 def send_webhook(main_content):
-    webhook_url = "https://discordapp.com/api/webhooks/709479351204184174/xC8ORQ_s3ddNxVstCcO8-bm-8af5xpElps2euO440tCOiRAoMLqfiuwLw-MEipLfiq79"
     response = requests.post(webhook_url, main_content)
     if response.status_code != 204:
         print(response.text)
@@ -62,8 +62,6 @@ def return_df_from_gs():
     print("gsへのアクセス開始")
     scope = ["https://spreadsheets.google.com/feeds",
              "https://www.googleapis.com/auth/drive"]
-
-    SPREADSHEET_KEY = "1he4CNLJi6a2BsM7mptmeUe6gOuQCDNc7GJ5-hlZVLDs"
 
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
         current_path + "/rookie-contest-ecc5f6c1c767.json", scope)
@@ -129,9 +127,29 @@ def return_list_of_not_in_gs(df):
     return not_in_gs_list
 
 
+def read_configfile():
+    config_ini = configparser.ConfigParser()
+    config_ini_path = current_path + '/config.ini'
+
+    if not os.path.exists(config_ini_path):
+        raise FileNotFoundError(
+            errno.ENOENT, os.strerror(
+                errno.ENOENT), config_ini_path)
+
+    config_ini.read(config_ini_path, encoding='utf-8')
+
+    read_default = config_ini['DEFAULT']
+    webhook_url = read_default.get('webhook_url')
+    SPREADSHEET_KEY = read_default.get('SPREADSHEET_KEY')
+
+    return webhook_url, SPREADSHEET_KEY
+
+
 if __name__ == "__main__":
     current_path = os.path.dirname(__file__)
     json_name = current_path + "/notified.json"
+
+    webhook_url, SPREADSHEET_KEY = read_configfile()
 
     print(datetime.datetime.now())
 
@@ -160,5 +178,9 @@ if __name__ == "__main__":
     if len(not_in_gs_list) > 0:
         send_not_in_gs_list(not_in_gs_list, json_name)
         pass
+
+    msg = "テスト"
+    msg = gen_webhook_msg(msg)
+    send_webhook(msg)
 
     print("done")
