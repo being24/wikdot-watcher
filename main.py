@@ -180,8 +180,4 @@ if __name__ == "__main__":
         send_not_in_gs_list(not_in_gs_list, json_name)
         pass
 
-    msg = "テスト"
-    msg = gen_webhook_msg(msg)
-    send_webhook(msg)
-
     print("done")
