@@ -4,6 +4,7 @@
 
 import configparser
 import datetime
+import errno
 import html
 import json
 import os
