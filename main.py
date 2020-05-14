@@ -24,7 +24,7 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
     cnt = 0
 
     for draft in not_in_gs_list:
-        msg = f"title : {draft[0]}\nurl : {draft[1]}"
+        msg = f"タイトル: {draft[0]}\nカテゴリ: \n著者: \nURL: {draft[1]}"
         main_content = gen_webhook_msg(msg)
 
         send_webhook(main_content)
