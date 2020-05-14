@@ -19,7 +19,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 
 def send_not_in_gs_list(not_in_gs_list, json_name):
-    msg = f"スプレッドシートにない下書きを発見しました!"
+    msg = f"----------\nスプレッドシートにない下書きを発見しました!"
     init_msg = gen_webhook_msg(msg)
     send_webhook(init_msg)
 
@@ -48,7 +48,7 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
 
 
 def send_age(age_list, json_name):
-    msg = f"同一著者名を発見しました!\nageかも？"
+    msg = f"----------\n同一著者名を発見しました!\nageかも？"
     init_msg = gen_webhook_msg(msg)
     send_webhook(init_msg)
 
