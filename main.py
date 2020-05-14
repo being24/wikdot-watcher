@@ -147,7 +147,7 @@ def read_configfile():
 
 
 if __name__ == "__main__":
-    current_path = os.path.dirname(__file__)
+    current_path = os.path.dirname(os.path.abspath(__file__))
     json_name = current_path + "/notified.json"
 
     webhook_url, SPREADSHEET_KEY = read_configfile()
