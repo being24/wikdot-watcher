@@ -48,7 +48,7 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
 
 
 def send_age(age_list, json_name):
-    msg = f"----------\n同一著者名を発見しました!\nageかも？"
+    msg = f"----------\n同一著者名を発見しました!\n確認をお願いします"
     init_msg = gen_webhook_msg(msg)
     send_webhook(init_msg)
 
