@@ -48,28 +48,20 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
 
 
 def send_age(age_list, json_name):
-    msg = f"同一著者名を発見しました!ageかも？"
+    msg = f"同一著者名を発見しました!\nageかも？"
     init_msg = gen_webhook_msg(msg)
     send_webhook(init_msg)
 
-    cnt = 0
+    msg = f"タイトル: {age_list[0]}\nカテゴリ: \n著者: {age_list[2]}\nURL: {age_list[1]}"
+    main_content = gen_webhook_msg(msg)
 
-    for age in age_list:
-        msg = f"タイトル: {age[0]}\nカテゴリ: \n著者: {age[2]}\nURL: {age[1]}"
-        main_content = gen_webhook_msg(msg)
+    send_webhook(main_content)
+    current_key_num = len(notified_json) + 1
 
-        send_webhook(main_content)
-        cnt += 1
-        current_key_num = len(notified_json) + 1
-
-        notified_json[str(current_key_num)] = {
-            "title": age[0],
-            "url": age[1],
-        }
-
-    msg = f"以上、{cnt}件"
-    last_msg = gen_webhook_msg(msg)
-    send_webhook(last_msg)
+    notified_json[str(current_key_num)] = {
+        "title": age_list[0],
+        "url": age_list[1],
+    }
 
     dump_json(notified_json)
 
@@ -175,7 +167,14 @@ def rtrn_lst_not_in_gs_frm_SB3(df):
     url_list = []
     author_list = []
 
+    sb3_list = []
+    result_list = []
+
+    for key in notified_json.keys():
+        notified_url_list.append(notified_json[key]["url"])
+
     for i in contant_list:
+        flag = 0
         if i.find("a")is not None:
             if "ガイド" in i.find("a").text:
                 continue
@@ -185,8 +184,10 @@ def rtrn_lst_not_in_gs_frm_SB3(df):
 
         for gs_url in df["下書きURL"]:
             if gs_url == url:
+                flag = 1
                 continue
-        else:
+
+        if flag == 1:
             continue
 
         if i.find("h1")is not None:  # title
@@ -201,26 +202,20 @@ def rtrn_lst_not_in_gs_frm_SB3(df):
 
         for gs_author in df["著者"]:
             if gs_author == author:
-                send_age([title, url, author], json_name)
-                continue
+                if any([url == i for i in notified_url_list]):
+                    pass
+                else:
+                    send_age([title, url, author], json_name)
 
-        title_list.append(title)
-        author_list.append(author)
-        url_list.append(url)
+        sb3_list = [title.replace("\u3000", " "), url, author]
 
-    for key in notified_json.keys():
-        notified_url_list.append(notified_json[key]["url"])
+        result_list.append(sb3_list)
 
-    for num, url in enumerate(url_list):
-        for notified_url in notified_url_list:
-            if notified_url == url:
-                del url_list[int(num)]
-                del author_list[int(num)]
-                del title_list[int(num)]
-                break
-            else:
-                not_in_gs_list.append(
-                    [title_list[int(num)], url_list[int(num)], author_list[int(num)]])
+    for one in result_list:
+        if any([one[1] == i for i in notified_url_list]):
+            continue
+        else:
+            not_in_gs_list.append(one)
 
     return not_in_gs_list
 
@@ -272,7 +267,6 @@ if __name__ == "__main__":
     df = return_df_from_gs()
 
     not_in_gs_list = rtrn_lst_not_in_gs_frm_SB3(df)
-    # not_in_gs_list = rtrn_lst_not_in_gs_frm_RSS(df)
 
     if len(not_in_gs_list) > 0:
         send_not_in_gs_list(not_in_gs_list, json_name)
