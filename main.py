@@ -8,11 +8,13 @@ import errno
 import html
 import json
 import os
+import pprint
 
 import feedparser
 import gspread
 import pandas as pd
 import requests
+from bs4 import BeautifulSoup
 from oauth2client.service_account import ServiceAccountCredentials
 
 
@@ -24,7 +26,7 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
     cnt = 0
 
     for draft in not_in_gs_list:
-        msg = f"タイトル: {draft[0]}\nカテゴリ: \n著者: \nURL: {draft[1]}"
+        msg = f"タイトル: {draft[0]}\nカテゴリ: \n著者: {draft[2]}\nURL: {draft[1]}"
         main_content = gen_webhook_msg(msg)
 
         send_webhook(main_content)
@@ -43,6 +45,33 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
     dump_json(notified_json)
 
     print("webhookの送信完了")
+
+
+def send_age(age_list, json_name):
+    msg = f"同一著者名を発見しました!ageかも？"
+    init_msg = gen_webhook_msg(msg)
+    send_webhook(init_msg)
+
+    cnt = 0
+
+    for age in age_list:
+        msg = f"タイトル: {age[0]}\nカテゴリ: \n著者: {age[2]}\nURL: {age[1]}"
+        main_content = gen_webhook_msg(msg)
+
+        send_webhook(main_content)
+        cnt += 1
+        current_key_num = len(notified_json) + 1
+
+        notified_json[str(current_key_num)] = {
+            "title": age[0],
+            "url": age[1],
+        }
+
+    msg = f"以上、{cnt}件"
+    last_msg = gen_webhook_msg(msg)
+    send_webhook(last_msg)
+
+    dump_json(notified_json)
 
 
 def gen_webhook_msg(content):
@@ -96,7 +125,7 @@ def return_df_from_gs():
     return df
 
 
-def return_list_of_not_in_gs(df):
+def rtrn_lst_not_in_gs_frm_RSS(df):
     print("rssへのアクセス開始")
 
     RSS_C_and_C = "http://scp-jp-sandbox3.wikidot.com/feed/pages/pagename/draft%3A3396310-91-c0ad/category/draft/tags/%2B_contest%2C%2B_criticism-in/order/updated_at+desc/limit/1/t/%E3%82%B3%E3%83%B3%E3%83%86%E3%82%B9%E3%83%88%E6%89%B9%E8%A9%95%E5%BE%85%E3%81%A1"
@@ -128,9 +157,79 @@ def return_list_of_not_in_gs(df):
     return not_in_gs_list
 
 
+def rtrn_lst_not_in_gs_frm_SB3(df):
+    print("SB3へのアクセス開始")
+
+    response = requests.get(
+        'http://scp-jp-sandbox3.wikidot.com/draft:1883921-5-0154')
+    soup = BeautifulSoup(response.text, "html.parser")
+    contant_list = soup.find_all(class_="list-pages-item")
+
+    not_in_gs_list = []
+    notified_url_list = []
+
+    title = ""
+    url = ""
+    author = ""
+    title_list = []
+    url_list = []
+    author_list = []
+
+    for i in contant_list:
+        if i.find("a")is not None:
+            if "ガイド" in i.find("a").text:
+                continue
+            url = i.find('a').text
+        else:
+            continue
+
+        for gs_url in df["下書きURL"]:
+            if gs_url == url:
+                continue
+        else:
+            continue
+
+        if i.find("h1")is not None:  # title
+            title = i.find("h1").text
+        else:
+            title = "None"
+
+        if i.find("h2")is not None:  # author
+            author = i.find("h2").text
+        else:
+            author = "None"
+
+        for gs_author in df["著者"]:
+            if gs_author == author:
+                send_age([title, url, author], json_name)
+                continue
+
+        title_list.append(title)
+        author_list.append(author)
+        url_list.append(url)
+
+    for key in notified_json.keys():
+        notified_url_list.append(notified_json[key]["url"])
+
+    for num, url in enumerate(url_list):
+        for notified_url in notified_url_list:
+            if notified_url == url:
+                del url_list[int(num)]
+                del author_list[int(num)]
+                del title_list[int(num)]
+                break
+            else:
+                not_in_gs_list.append(
+                    [title_list[int(num)], url_list[int(num)], author_list[int(num)]])
+
+    return not_in_gs_list
+
+
 def read_configfile():
     config_ini = configparser.ConfigParser()
     config_ini_path = current_path + '/config.ini'
+
+    print(current_path)
 
     if not os.path.exists(config_ini_path):
         raise FileNotFoundError(
@@ -174,7 +273,8 @@ if __name__ == "__main__":
 
     df = return_df_from_gs()
 
-    not_in_gs_list = return_list_of_not_in_gs(df)
+    not_in_gs_list = rtrn_lst_not_in_gs_frm_SB3(df)
+    # not_in_gs_list = rtrn_lst_not_in_gs_frm_RSS(df)
 
     if len(not_in_gs_list) > 0:
         send_not_in_gs_list(not_in_gs_list, json_name)
