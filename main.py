@@ -225,11 +225,9 @@ def rtrn_lst_not_in_gs_frm_SB3(df):
     return not_in_gs_list
 
 
-def read_configfile():
+def read_configfile(current_path):
     config_ini = configparser.ConfigParser()
     config_ini_path = current_path + '/config.ini'
-
-    print(current_path)
 
     if not os.path.exists(config_ini_path):
         raise FileNotFoundError(
@@ -249,7 +247,7 @@ if __name__ == "__main__":
     current_path = os.path.dirname(__file__)
     json_name = current_path + "/notified.json"
 
-    webhook_url, SPREADSHEET_KEY = read_configfile()
+    webhook_url, SPREADSHEET_KEY = read_configfile(current_path)
 
     print(datetime.datetime.now())
 
