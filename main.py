@@ -2,13 +2,12 @@
 # coding: utf-8
 
 
+import asyncio
 import configparser
 import datetime
 import errno
-import html
 import json
 import os
-import pprint
 
 import feedparser
 import gspread
@@ -19,9 +18,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 
 def send_not_in_gs_list(not_in_gs_list, json_name):
-    msg = f"----------\nスプレッドシートにない下書きを発見しました!"
+    msg = "----------\nスプレッドシートにない下書きを発見しました!"
     init_msg = gen_webhook_msg(msg)
-    send_webhook(init_msg)
+    await send_webhook(init_msg)
 
     cnt = 0
 
@@ -29,7 +28,7 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
         msg = f"タイトル: {draft[0]}\nカテゴリ: \n著者: {draft[2]}\nURL: {draft[1]}"
         main_content = gen_webhook_msg(msg)
 
-        send_webhook(main_content)
+        await send_webhook(main_content)
         cnt += 1
         current_key_num = len(notified_json) + 1
 
@@ -40,7 +39,7 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
 
     msg = f"以上、{cnt}件"
     last_msg = gen_webhook_msg(msg)
-    send_webhook(last_msg)
+    await send_webhook(last_msg)
 
     dump_json(notified_json)
 
@@ -48,14 +47,14 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
 
 
 def send_age(age_list, json_name):
-    msg = f"----------\n同一著者名を発見しました!\n確認をお願いします"
+    msg = "----------\n同一著者名を発見しました!\n確認をお願いします"
     init_msg = gen_webhook_msg(msg)
-    send_webhook(init_msg)
+    await send_webhook(init_msg)
 
     msg = f"タイトル: {age_list[0]}\nカテゴリ: \n著者: {age_list[2]}\nURL: {age_list[1]}"
     main_content = gen_webhook_msg(msg)
 
-    send_webhook(main_content)
+    await send_webhook(main_content)
     current_key_num = len(notified_json) + 1
 
     notified_json[str(current_key_num)] = {
@@ -74,7 +73,8 @@ def gen_webhook_msg(content):
     return msg
 
 
-def send_webhook(main_content):
+async def send_webhook(main_content):
+    await asyncio.sleep(1)
     response = requests.post(webhook_url, main_content)
     if response.status_code != 204:
         print(response.text)
@@ -163,9 +163,6 @@ def rtrn_lst_not_in_gs_frm_SB3(df):
     title = ""
     url = ""
     author = ""
-    title_list = []
-    url_list = []
-    author_list = []
 
     sb3_list = []
     result_list = []
@@ -175,7 +172,7 @@ def rtrn_lst_not_in_gs_frm_SB3(df):
 
     for i in contant_list:
         flag = 0
-        if i.find("a")is not None:
+        if i.find("a") is not None:
             if "ガイド" in i.find("a").text:
                 continue
             url = i.find('a').text
@@ -190,12 +187,12 @@ def rtrn_lst_not_in_gs_frm_SB3(df):
         if flag == 1:
             continue
 
-        if i.find("h1")is not None:  # title
+        if i.find("h1") is not None:  # title
             title = i.find("h1").text
         else:
             title = "None"
 
-        if i.find("h2")is not None:  # author
+        if i.find("h2") is not None:  # author
             author = i.find("h2").text
         else:
             author = "None"
