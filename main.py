@@ -2,7 +2,6 @@
 # coding: utf-8
 
 
-import asyncio
 import configparser
 import datetime
 import errno
@@ -20,7 +19,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 def send_not_in_gs_list(not_in_gs_list, json_name):
     msg = "----------\nスプレッドシートにない下書きを発見しました!"
     init_msg = gen_webhook_msg(msg)
-    await send_webhook(init_msg)
+    send_webhook(init_msg)
 
     cnt = 0
 
@@ -28,7 +27,7 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
         msg = f"タイトル: {draft[0]}\nカテゴリ: \n著者: {draft[2]}\nURL: {draft[1]}"
         main_content = gen_webhook_msg(msg)
 
-        await send_webhook(main_content)
+        send_webhook(main_content)
         cnt += 1
         current_key_num = len(notified_json) + 1
 
@@ -39,7 +38,7 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
 
     msg = f"以上、{cnt}件"
     last_msg = gen_webhook_msg(msg)
-    await send_webhook(last_msg)
+    send_webhook(last_msg)
 
     dump_json(notified_json)
 
@@ -49,12 +48,12 @@ def send_not_in_gs_list(not_in_gs_list, json_name):
 def send_age(age_list, json_name):
     msg = "----------\n同一著者名を発見しました!\n確認をお願いします"
     init_msg = gen_webhook_msg(msg)
-    await send_webhook(init_msg)
+    send_webhook(init_msg)
 
     msg = f"タイトル: {age_list[0]}\nカテゴリ: \n著者: {age_list[2]}\nURL: {age_list[1]}"
     main_content = gen_webhook_msg(msg)
 
-    await send_webhook(main_content)
+    send_webhook(main_content)
     current_key_num = len(notified_json) + 1
 
     notified_json[str(current_key_num)] = {
@@ -73,11 +72,12 @@ def gen_webhook_msg(content):
     return msg
 
 
-async def send_webhook(main_content):
-    await asyncio.sleep(1)
+def send_webhook(main_content):
     response = requests.post(webhook_url, main_content)
     if response.status_code != 204:
         print(response.text)
+        print(main_content)
+        response = requests.post(webhook_url, main_content)
 
 
 def return_df_from_gs():
