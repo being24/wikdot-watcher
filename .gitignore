@@ -131,3 +131,4 @@ dmypy.json
 *.json
 *.log
 *.ini
+*.ipynb
