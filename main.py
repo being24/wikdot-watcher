@@ -117,38 +117,6 @@ def return_df_from_gs():
     return df
 
 
-def rtrn_lst_not_in_gs_frm_RSS(df):
-    print("rssへのアクセス開始")
-
-    RSS_C_and_C = "http://scp-jp-sandbox3.wikidot.com/feed/pages/pagename/draft%3A3396310-91-c0ad/category/draft/tags/%2B_contest%2C%2B_criticism-in/order/updated_at+desc/limit/1/t/%E3%82%B3%E3%83%B3%E3%83%86%E3%82%B9%E3%83%88%E6%89%B9%E8%A9%95%E5%BE%85%E3%81%A1"
-    rss_data = feedparser.parse(RSS_C_and_C)
-
-    rss_url_list = []
-    not_in_gs_list = []
-    notified_url_list = []
-
-    for entry in rss_data.entries:
-        rss_url_list.append(entry.id)
-        for gs_url in df["下書きURL"]:
-            if gs_url == entry.id:
-                rss_url_list.remove(entry.id)
-
-    # rss_url_list gsとrssで被ってないリストから通知したURLリストを引けばいい、眠い
-
-    for key in notified_json.keys():
-        notified_url_list.append(notified_json[key]["url"])
-
-    result_list = list(set(rss_url_list) - set(notified_url_list))
-
-    for entry in rss_data.entries:
-        if any([entry.id == i for i in result_list]):
-            not_in_gs_list.append([entry.title, entry.id])
-
-    print("記録されていないurlのリスト更新完了")
-
-    return not_in_gs_list
-
-
 def rtrn_lst_not_in_gs_frm_SB3(df):
     print("SB3へのアクセス開始")
 
