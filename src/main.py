@@ -168,9 +168,7 @@ class gooogle_spread_sheet_handler():
         scope = ["https://spreadsheets.google.com/feeds",
                  "https://www.googleapis.com/auth/drive"]
 
-        credentials = ServiceAccountCredentials.from_json_keyfile_name(
-            "rookie-contest-ecc5f6c1c767.json", scope)
-        # current_pathに直す
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(data_path + "/rookie-contest-ecc5f6c1c767.json", scope)
 
         gc = gspread.authorize(credentials)
 
@@ -289,9 +287,13 @@ class get_diff():
 
 if __name__ == "__main__":
     READ_SECTION = 'DEFAULT'
+
+    data_path = pathlib.Path(__file__).parent
+    data_path /= '../data'
+    data_path = str(data_path.resolve())
+
     config = configparser.RawConfigParser()
-    config.read('config.ini', encoding='utf-8')
-    # ここmasterpath
+    config.read(data_path + '/config.ini', encoding='utf-8')
     SB3_URL = config[READ_SECTION]['SB3_URL']
 
     response = requests.get(SB3_URL)
