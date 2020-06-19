@@ -51,9 +51,11 @@ class webhook():
             if response.status_code == 204:
                 break
             else:
+                err_data = response.json()
+                retry_after = int(err_data["retry_after"]) / 1000 + 0.1
                 logging.error(response.text)
                 logging.error(main_content)
-                time.sleep(0.5)
+                time.sleep(retry_after)
 
         time.sleep(0.5)
 
