@@ -56,7 +56,8 @@ class gooogle_spread_sheet_handler():
             sheet_dict_list.append({'sheetname': sheet[1], 'number': sheet[3]})
         return sheet_dict_list
 
-    def return_sheet_exists(self, sheet_name, workbook):
+    def return_sheet_exists(self, sheet_name):
+        workbook = self.get_workbook()
         worksheet_list = workbook.worksheets()
         sheet_dict_list = self.split_workbook_name(worksheet_list)
 
@@ -70,8 +71,8 @@ class gooogle_spread_sheet_handler():
             return worksheet
 
     def read_spreadsheet_by_name(self, sheet_name: str):
-        workbook = self.get_workbook()
-        worksheet = self.return_sheet_exists(sheet_name, workbook)
+        worksheet = self.create_sheet_not_exists(sheet_name)
+
         cell_list = worksheet.get_all_values()
 
         cell_list = [[j.replace("\u3000", " ") for j in i] for i in cell_list]
@@ -120,12 +121,31 @@ class gooogle_spread_sheet_handler():
             sheet_name: str,
             write_list: list,
             start_cell: str = 'A1'):
-        workbook = self.get_workbook()
-        worksheet = self.return_sheet_exists(sheet_name, workbook)
+        worksheet = self.return_sheet_exists(sheet_name)
 
         worksheet.append_rows(write_list)
 
     def clear_worksheet(self, sheet_name: str):
-        workbook = self.get_workbook()
-        worksheet = self.return_sheet_exists(sheet_name, workbook)
+        worksheet = self.return_sheet_exists(sheet_name)
         worksheet.clear()
+
+    def create_sheet_not_exists(self, sheet_name):
+        workbook = self.get_workbook()
+        worksheet_list = workbook.worksheets()
+        sheet_dict_list = self.split_workbook_name(worksheet_list)
+
+        worksheet_name_list = [i['sheetname'] for i in sheet_dict_list]
+
+        if sheet_name not in worksheet_name_list:
+            workbook.add_worksheet(title=sheet_name, rows=1000, cols=26)
+            worksheet = workbook.worksheet(sheet_name)
+            return worksheet
+        else:
+            worksheet = workbook.worksheet(sheet_name)
+            return worksheet
+
+
+if __name__ == "__main__":
+    gssh = gooogle_spread_sheet_handler()
+    sheet_name = 'test'
+    gssh.create_sheet_not_exists(sheet_name)
