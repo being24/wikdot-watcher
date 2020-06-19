@@ -11,14 +11,5 @@
         "lp_limit": [
             999999
         ]
-    },
-    "ルーキーコンテスト": {
-        "root_url": "http://scp-jp.wikidot.com/author:ukwhatn",
-        "lp_tags": [
-            "ルーキーコンテスト"
-        ],
-        "lp_limit": [
-            999999
-        ]
     }
 }

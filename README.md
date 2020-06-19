@@ -1,4 +1,4 @@
-# rookie-contest-gswatcher
+# wikdot-watcher
 
 SCPJP用のリストページモジュール用のタグ準拠の監視ツール
 特定のタグ付き記事(250以下前提)について監視します
@@ -7,7 +7,7 @@ googleAPIのjsonは自分でがんばれ
 
 ## SB3用のコード
 
-```html
+``` html
 [[module ListPages tags="+_contest +_criticism-in" order="updated_at desc" perPage="100"]]
 > +++++ [[span class="lp_title"]]%%title_linked%%[[/span]] ( [[span class="lp_fullname"]]/%%fullname%%[[/span]] )
 > Created By: [[span class="lp_created_by"]]%%created_by_linked%%[[/span]] / At: [[span class="lp_created_at"]]%%created_at%%[[/span]]
@@ -21,3 +21,31 @@ googleAPIのjsonは自分でがんばれ
 ```
 
 この場合はコンテストタグつき、批評待ち状態用
+
+dataフォルダにconfig.iniとgoogleAPIのjsonを配置します。googleAPIのjson名google_spread_sheet_handlerの該当部分を書き換えます。  
+config.iniには
+
+``` json
+[DEFAULT]
+name = listpage_watcher
+avatar_url = https://raw.githubusercontent.com/being24/wikdot-watcher/master/data/logo.png
+WEBHOOK_URL = "your webhook url here"
+spreadsheet_key = "your spread sheet key here"
+```
+
+上記コードを貼ったページを用意します。
+
+``` json
+    "ルーキーコンテスト": {
+        "root_url": "http://scp-jp.wikidot.com/author:ukwhatn",
+        "lp_tags": [
+            "ルーキーコンテスト"
+        ],
+        "lp_limit": [
+            999999
+        ]
+    }
+```
+
+上記のようにwatchlist.jsonを改変します。複数も可能です。  
+config.iniに設定したスプレッドシートに情報が書き込まれ、指定のwebhookに投稿します。必要なければ送信部分をコメントアウトしてください。
