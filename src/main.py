@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import configparser
+import json
 import logging
 import pathlib
 
@@ -49,32 +50,37 @@ if __name__ == "__main__":
     get_diff = get_diff()
     webhook = webhook()
     gssh = gooogle_spread_sheet_handler()
-    params = {
-        "lp_category": ['draft'],
-        "lp_tags": ["_contest", "_criticism-in"],
-        'lp_limit': [999999]}
 
-    not_in_gs_list = get_diff.diff_of_gs_and_listpage('ルーキーコン2020', params)
+    # SITE_URL = "http://scp-jp.wikidot.com/author:ukwhatn"
+    try:
+        with open(data_path + '/watchlist.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        print('JSONDecodeError: ', e)
 
-    if len(not_in_gs_list) > 0:
-        msg = '----------\n'
-        msg += f'未登録の記事を{len(not_in_gs_list)} 件発見しました!\n'
-        print(msg)
-        webhook.send_webhook(msg)
+    for key in data.keys():
+        sheet_name = key
+        params = data[key]
+        not_in_gs_list = get_diff.diff_of_gs_and_listpage(sheet_name, params)
 
-        gssh.add_row_by_name('ルーキーコン2020', not_in_gs_list)
-
-        for content in not_in_gs_list:
-            msg = '----------\n'
-            msg += f'タイトル: {content[0]}\n'
-            msg += f'カテゴリ: \n著者: {content[2]}\n'
-            msg += 'URL: '
-            if 'draft' in content[1]:
-                msg += 'http://scp-jp-sandbox3.wikidot.com'
-            else:
-                msg += 'http://scp-jp.wikidot.com'
-            msg += f'{content[1]}'
+        if len(not_in_gs_list) > 0:
+            msg = '----------\n----------\n'
+            msg += f'{sheet_name}について未登録の記事を{len(not_in_gs_list)} 件発見しました!\n'
             webhook.send_webhook(msg)
+
+            gssh.add_row_by_name(sheet_name, not_in_gs_list)
+
+            for content in not_in_gs_list:
+                msg = '----------\n'
+                msg += f'タイトル: {content[0]}\n'
+                msg += f'カテゴリ: \n著者: {content[2]}\n'
+                msg += 'URL: '
+                if 'draft' in content[1]:
+                    msg += 'http://scp-jp-sandbox3.wikidot.com'
+                else:
+                    msg += 'http://scp-jp.wikidot.com'
+                msg += f'{content[1]}'
+                webhook.send_webhook(msg)
 
     else:
         pass

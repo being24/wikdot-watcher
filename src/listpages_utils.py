@@ -40,7 +40,6 @@ class listpages_utils():
 
         config = configparser.RawConfigParser()
         config.read(self.data_path + '/config.ini', encoding='utf-8')
-        self.SB3_URL = config[READ_SECTION]['SB3_URL']
 
     def get_response(self, url):
         response = requests.get(url)
@@ -55,12 +54,13 @@ class listpages_utils():
     def return_url_with_option(self, params):
         parameter = ''
         for key in params.keys():
-            parameter += f'/{key}/'
-            for val in params[key]:
-                parameter += f' +{val}'
+            if 'root_url' not in key:
+                parameter += f'/{key}/'
+                for val in params[key]:
+                    parameter += f' +{val}'
 
         parameter = urllib.parse.quote(parameter)
-        url = self.SB3_URL + parameter
+        url = params['root_url'] + parameter
         return url
 
     def listpages2infolist(self, params):
