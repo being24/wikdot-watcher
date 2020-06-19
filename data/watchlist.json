@@ -1,0 +1,24 @@
+{
+    "批評中のコンテストタグ": {
+        "root_url": "http://scp-jp-sandbox3.wikidot.com/draft:1883921-5-0154",
+        "lp_category": [
+            "draft"
+        ],
+        "lp_tags": [
+            "_contest",
+            "_criticism-in"
+        ],
+        "lp_limit": [
+            999999
+        ]
+    },
+    "ルーキーコンテスト": {
+        "root_url": "http://scp-jp.wikidot.com/author:ukwhatn",
+        "lp_tags": [
+            "ルーキーコンテスト"
+        ],
+        "lp_limit": [
+            999999
+        ]
+    }
+}
