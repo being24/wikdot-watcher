@@ -22,11 +22,10 @@ class get_diff():
 
         not_in_gs_list = []
         for one in listpages_data:
-            if any([one == i for i in spreadsheet_data]):
+            if any([one[1] == i[1] for i in spreadsheet_data]):
                 continue
             else:
                 not_in_gs_list.append(one)
-
         return not_in_gs_list
 
 
@@ -51,7 +50,6 @@ if __name__ == "__main__":
     webhook = webhook()
     gssh = gooogle_spread_sheet_handler()
 
-    # SITE_URL = "http://scp-jp.wikidot.com/author:ukwhatn"
     try:
         with open(data_path + '/watchlist.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -59,18 +57,20 @@ if __name__ == "__main__":
         print('JSONDecodeError: ', e)
 
     for key in data.keys():
+        not_in_gs_list = []
         sheet_name = key
         params = data[key]
         not_in_gs_list = get_diff.diff_of_gs_and_listpage(sheet_name, params)
 
         if len(not_in_gs_list) > 0:
-            msg = '----------\n----------\n'
+            msg = '----------\n'
             msg += f'{sheet_name}について未登録の記事を{len(not_in_gs_list)} 件発見しました!\n'
             webhook.send_webhook(msg)
 
             gssh.add_row_by_name(sheet_name, not_in_gs_list)
 
             for content in not_in_gs_list:
+
                 msg = '----------\n'
                 msg += f'タイトル: {content[0]}\n'
                 msg += f'カテゴリ: \n著者: {content[2]}\n'
