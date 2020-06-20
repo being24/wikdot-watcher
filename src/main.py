@@ -35,7 +35,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         level=logging.DEBUG,
         format='%(levelname)s: %(message)s')
-    # logging.disable(logging.WARNING)
+    logging.disable(logging.WARNING)
 
     logging.debug('program begins.')
 
