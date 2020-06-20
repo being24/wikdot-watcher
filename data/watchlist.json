@@ -11,5 +11,14 @@
         "lp_limit": [
             999999
         ]
+    },
+    "クロスリンクキャンペーン": {
+        "root_url": "http://scp-jp.wikidot.com/author:ukwhatn",
+        "lp_tags": [
+            "クロスリンクキャンペーン"
+        ],
+        "lp_limit": [
+            999999
+        ]
     }
 }
