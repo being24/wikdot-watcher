@@ -47,7 +47,7 @@ class listpages_utils():
         return soup
 
     def add_row_title(self, info_list):
-        return_list = self.header
+        return_list = [i for i in self.header]
         return_list += info_list
         return return_list
 
@@ -68,6 +68,8 @@ class listpages_utils():
         url = self.return_url_with_option(params)
         soup = self.get_response(url)
         info_list = []
+        listpages_list = []
+        temp_list = []
         listpages_list = [i for i in soup.select(
             "[class='list-pages-item']") if i.select_one('h5')]
         for i in listpages_list:
