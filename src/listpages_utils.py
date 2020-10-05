@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import configparser
+import json
 import logging
 import pathlib
 import urllib.parse
@@ -145,3 +146,15 @@ class listpages_utils():
         logging.debug('scraping ended')
 
         return(info_list)
+
+
+if __name__ == "__main__":
+    lp = listpages_utils()
+    try:
+        with open(lp.data_path + '/watchlist.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        print('JSONDecodeError: ', e)
+    for key in data.keys():
+        params = data[key]
+        print(lp.return_url_with_option(params))
